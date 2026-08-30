@@ -32,9 +32,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-          setToken(storedToken);
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await res.json();
+            setUser(data.user);
+            setToken(storedToken);
+          } else {
+            localStorage.removeItem('liyana_admin_token');
+            setToken(null);
+            setUser(null);
+          }
         } else {
           localStorage.removeItem('liyana_admin_token');
           setToken(null);
@@ -57,6 +64,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
+
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+          return { success: false, error: 'API route not reachable (received HTML). On Vercel, please ensure vercel.json is configured to route /api/* to server.ts.' };
+        }
+        return { success: false, error: 'Server returned an invalid non-JSON response.' };
+      }
 
       const data = await res.json();
       if (!res.ok) {

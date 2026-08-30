@@ -86,7 +86,7 @@ export const AdminPhotos: React.FC<AdminPhotosProps> = ({ photos, onRefresh, onU
         const payload: PhotoItem = {
           id: editingPhoto.id || `photo-${Date.now()}`,
           title: editingPhoto.title || 'Untitled Capture',
-          category: (editingPhoto.category as CategoryType) || 'Portrait',
+          category: (editingPhoto.category === 'All' ? 'Portrait' : editingPhoto.category as PhotoItem['category']) || 'Portrait',
           description: editingPhoto.description || '',
           image: editingPhoto.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80',
           aspectRatio: (editingPhoto.aspectRatio as any) || 'portrait',
